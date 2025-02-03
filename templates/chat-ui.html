@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat UI - DeepSeek</title>
+    <!-- CDN de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        daisyui: {
+          themes: true
+        }
+      };
+    </script>
+    <!-- CDN de DaisyUI beta 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@beta/dist/full.css" rel="stylesheet" />
+</head>
+<body class="bg-base-200">
+  <div class="container mx-auto p-4">
+    <div class="card bg-base-100 shadow-xl p-6">
+      <h1 class="text-2xl font-bold mb-4">Chat con DeepSeek</h1>
+      <div class="mb-4">
+        <label for="model-select" class="label">Selecciona el modelo:</label>
+        <select id="model-select" class="select select-bordered w-full max-w-xs">
+            <option value="chat">DeepSeek Chat</option>
+            <option value="reasoner">DeepSeek Reasoner</option>
+        </select>
+      </div>
+      <div class="mb-4">
+        <textarea id="user-input" placeholder="Ingresa tu mensaje aquí..." rows="4" class="textarea textarea-bordered w-full"></textarea>
+      </div>
+      <div class="mb-4">
+        <button onclick="sendMessage()" class="btn btn-primary">Enviar</button>
+      </div>
+      <div>
+        <hr class="my-4"/>
+        <div id="response-area"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function sendMessage() {
+      var model = document.getElementById("model-select").value;
+      var message = document.getElementById("user-input").value;
+      fetch("/api/chat", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ model: model, message: message })
+      })
+      .then(response => response.json())
+      .then(data => {
+          var output = "";
+          if(data.error) {
+              output = "<strong>Error:</strong><br>" + data.error;
+          } else if(model === "reasoner"){
+              output += "<strong>Cadena de Razonamiento:</strong><br>" + (data.reasoning || "") + "<br><strong>Respuesta:</strong><br>" + data.answer;
+          } else {
+              output += "<strong>Respuesta:</strong><br>" + data.answer;
+          }
+          document.getElementById("response-area").innerHTML = output;
+      });
+    }
+  </script>
+</body>
+</html> 

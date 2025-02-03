@@ -1,0 +1,36 @@
+# Entorno virtual
+venv/
+
+# Archivos de Python
+*.py[cod]
+*$py.class
+__pycache__/
+
+# Variables de entorno
+.env
+
+# Bases de datos locales
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
+# Instancia de Flask
+instance/
+
+# Cobertura de tests
+htmlcov/
+.coverage
+.coverage.*
+
+# Migraciones
+.migrations/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Builds
+build/
+dist/ 

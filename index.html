@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mi Aplicación Mejorada</title>
+    <!-- CDN de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Configuración mínima para habilitar DaisyUI
+      tailwind.config = {
+        daisyui: {
+          themes: true,
+        },
+      };
+    </script>
+    <!-- CDN de DaisyUI beta 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@beta/dist/full.css" rel="stylesheet" />
+  </head>
+  <body class="bg-base-200">
+    <!-- Navbar utilizando DaisyUI -->
+    <div class="navbar bg-base-100 shadow-lg">
+      <div class="flex-1">
+        <a class="btn btn-ghost normal-case text-xl">Mi Aplicación</a>
+      </div>
+      <div class="flex-none">
+        <ul class="menu menu-horizontal p-0">
+          <li><a>Inicio</a></li>
+          <li><a>Servicios</a></li>
+          <li><a>Contacto</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="container mx-auto mt-10 px-4">
+      <div class="card w-full bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title">Bienvenido</h2>
+          <p>
+            Hemos mejorado la estética de esta vista utilizando DaisyUI beta 5 y Tailwind CSS. La interfaz luce limpia, moderna y minimalista sin perder ninguna funcionalidad.
+          </p>
+          <div class="card-actions justify-end">
+            <button class="btn btn-primary">Empezar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html> 

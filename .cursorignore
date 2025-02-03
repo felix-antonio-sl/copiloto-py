@@ -1,0 +1,38 @@
+# .cursorignore file for el proyecto Copiloto-Py
+
+# Ignorar el entorno virtual (virtualenv/venv)
+venv/
+
+# Archivos compilados de Python y caché
+*.py[cod]
+*$py.class
+__pycache__/
+
+# Archivo de variables de entorno
+.env
+
+# Archivos de bases de datos locales
+*.db
+*.sqlite3
+
+# Archivos de log
+*.log
+
+# Carpeta de instancia de Flask (si se utiliza)
+instance/
+
+# Informes de cobertura de tests
+htmlcov/
+.coverage
+.coverage.*
+
+# Cache de migraciones (si no se requiere indexar)
+.migrations/
+
+# Archivos generados por el sistema operativo
+.DS_Store
+Thumbs.db
+
+# Opcional: Ignorar carpetas de compilación o distribución
+build/
+dist/

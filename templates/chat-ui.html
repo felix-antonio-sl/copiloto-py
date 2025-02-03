@@ -1,67 +1,122 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat UI - DeepSeek</title>
-    <!-- CDN de Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        daisyui: {
-          themes: true
-        }
-      };
-    </script>
-    <!-- CDN de DaisyUI beta 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@beta/dist/full.css" rel="stylesheet" />
-</head>
-<body class="bg-base-200">
-  <div class="container mx-auto p-4">
-    <div class="card bg-base-100 shadow-xl p-6">
-      <h1 class="text-2xl font-bold mb-4">Chat con DeepSeek</h1>
-      <div class="mb-4">
-        <label for="model-select" class="label">Selecciona el modelo:</label>
-        <select id="model-select" class="select select-bordered w-full max-w-xs">
-            <option value="chat">DeepSeek Chat</option>
-            <option value="reasoner">DeepSeek Reasoner</option>
-        </select>
-      </div>
-      <div class="mb-4">
-        <textarea id="user-input" placeholder="Ingresa tu mensaje aquí..." rows="4" class="textarea textarea-bordered w-full"></textarea>
-      </div>
-      <div class="mb-4">
-        <button onclick="sendMessage()" class="btn btn-primary">Enviar</button>
-      </div>
-      <div>
-        <hr class="my-4"/>
-        <div id="response-area"></div>
-      </div>
-    </div>
-  </div>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Interactivo - DeepSeek</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    function sendMessage() {
-      var model = document.getElementById("model-select").value;
-      var message = document.getElementById("user-input").value;
-      fetch("/api/chat", {
+    tailwind.config = {
+      daisyui: {
+        themes: true,
+      },
+    };
+  </script>
+  <!-- DaisyUI beta 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@beta/dist/full.css" rel="stylesheet" />
+</head>
+<body class="bg-base-200 h-screen flex flex-col">
+  <!-- Header -->
+  <header class="navbar bg-base-100 shadow-md">
+    <div class="flex-1 px-4">
+      <span class="text-xl font-bold">Chat con DeepSeek</span>
+    </div>
+  </header>
+  
+  <!-- Chat History -->
+  <main id="chat-history" class="flex-1 overflow-y-auto p-4 space-y-4">
+    <!-- Ejemplo de mensaje inicial del bot -->
+    <div class="chat chat-start">
+      <div class="chat-bubble">Hola, ¿en qué puedo ayudarte hoy?</div>
+    </div>
+  </main>
+  
+  <!-- Input Area -->
+  <footer class="bg-base-100 p-4">
+    <div class="flex flex-col sm:flex-row gap-2">
+      <select id="model-select" class="select select-bordered w-full sm:w-auto">
+        <option value="chat">DeepSeek Chat</option>
+        <option value="reasoner">DeepSeek Reasoner</option>
+      </select>
+      <textarea id="user-input" class="textarea textarea-bordered flex-grow" placeholder="Escribe tu mensaje..." rows="2"></textarea>
+      <button onclick="sendMessage()" class="btn btn-primary">Enviar</button>
+    </div>
+  </footer>
+
+  <!-- JavaScript para manejar el chat -->
+  <script>
+    async function sendMessage() {
+      const model = document.getElementById("model-select").value;
+      const message = document.getElementById("user-input").value.trim();
+      if (!message) return;
+      
+      // Añadir mensaje del usuario
+      appendMessage("user", message);
+      document.getElementById("user-input").value = "";
+      
+      // Añadir mensaje de carga para el bot
+      const loadingMessageId = appendMessage("bot", "Pensando...", true);
+      
+      try {
+        const response = await fetch("/api/chat", {
           method: "POST",
-          headers: {
-              "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ model: model, message: message })
-      })
-      .then(response => response.json())
-      .then(data => {
-          var output = "";
-          if(data.error) {
-              output = "<strong>Error:</strong><br>" + data.error;
-          } else if(model === "reasoner"){
-              output += "<strong>Cadena de Razonamiento:</strong><br>" + (data.reasoning || "") + "<br><strong>Respuesta:</strong><br>" + data.answer;
+        });
+        const data = await response.json();
+        
+        // Remover mensaje de carga
+        removeMessage(loadingMessageId);
+        
+        if (data.error) {
+          appendMessage("bot", "Error: " + data.error, true);
+        } else {
+          if (model === "reasoner") {
+            const fullResponse = "<strong>Cadena de Razonamiento:</strong><br>" + (data.reasoning || "") + "<br><strong>Respuesta:</strong><br>" + data.answer;
+            appendMessage("bot", fullResponse, true);
           } else {
-              output += "<strong>Respuesta:</strong><br>" + data.answer;
+            appendMessage("bot", data.answer, true);
           }
-          document.getElementById("response-area").innerHTML = output;
-      });
+        }
+      } catch (err) {
+        removeMessage(loadingMessageId);
+        appendMessage("bot", "Error: " + err, true);
+      }
+    }
+    
+    // Función para añadir un mensaje al historial
+    function appendMessage(sender, message, isHTML = false) {
+      const chatHistory = document.getElementById("chat-history");
+      const container = document.createElement("div");
+      container.classList.add("chat", sender === "user" ? "chat-end" : "chat-start");
+      const bubble = document.createElement("div");
+      bubble.classList.add("chat-bubble");
+      if(sender === "user") {
+          bubble.classList.add("chat-bubble-primary");
+      } else {
+          bubble.classList.add("chat-bubble-secondary");
+      }
+      if (isHTML) {
+        bubble.innerHTML = message;
+      } else {
+        bubble.textContent = message;
+      }
+      container.appendChild(bubble);
+      chatHistory.appendChild(container);
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+      // Asignar un ID único al mensaje para poder eliminarlo (ej. en caso de carga)
+      const messageId = "msg-" + Date.now();
+      container.setAttribute("id", messageId);
+      return messageId;
+    }
+    
+    // Función para remover un mensaje por su ID
+    function removeMessage(messageId) {
+      const el = document.getElementById(messageId);
+      if (el) {
+        el.remove();
+      }
     }
   </script>
 </body>

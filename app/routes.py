@@ -31,6 +31,13 @@ def chat():
         db.session.add(conv)
         db.session.commit()
 
+        # Guardar la conversación en ChromaDB para integración con búsquedas vectoriales
+        try:
+            from app.chromadb_integration import add_message
+            add_message(conv.id, user_message, chat_response)
+        except Exception as e:
+            current_app.logger.error(f"Error al guardar en ChromaDB: {e}")
+
         return jsonify({'response': chat_response, 'conversation_id': conv.id})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
